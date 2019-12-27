@@ -29,7 +29,9 @@ import org.json.JSONObject
 class PayWithGoogleActivity : AppCompatActivity() {
 
     private val stripe: Stripe by lazy {
-        Stripe(this, PaymentConfiguration.getInstance(this).publishableKey)
+        Stripe(this
+                , PaymentConfiguration.getInstance(this).publishableKey
+                ,"put_tenant_id_here")
     }
     private val paymentsClient: PaymentsClient by lazy {
         Wallet.getPaymentsClient(this,

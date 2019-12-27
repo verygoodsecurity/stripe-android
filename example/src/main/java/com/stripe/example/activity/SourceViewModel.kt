@@ -15,7 +15,8 @@ internal class SourceViewModel(
 ) : AndroidViewModel(application) {
     private val stripe = Stripe(
         application.applicationContext,
-        Settings(application.applicationContext).publishableKey
+        Settings(application.applicationContext).publishableKey,
+            "put_tenant_id_here"
     )
 
     internal var source: Source? = null

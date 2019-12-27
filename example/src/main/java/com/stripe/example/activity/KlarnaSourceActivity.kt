@@ -26,6 +26,7 @@ class KlarnaSourceActivity : AppCompatActivity() {
         Stripe(
             applicationContext,
             Settings(applicationContext).publishableKey,
+                "put_tenant_id_here",
             enableLogging = true
         )
     }

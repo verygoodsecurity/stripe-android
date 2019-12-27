@@ -27,7 +27,8 @@ class CreateCardPaymentMethodActivity : AppCompatActivity() {
     private val stripe: Stripe by lazy {
         Stripe(
             applicationContext,
-            PaymentConfiguration.getInstance(this).publishableKey
+            PaymentConfiguration.getInstance(this).publishableKey,
+            "put_tenant_id_here"
         )
     }
     private lateinit var snackbarContainer: View

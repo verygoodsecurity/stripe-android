@@ -22,7 +22,8 @@ class CreateSepaDebitActivity : AppCompatActivity() {
         setTitle(R.string.launch_create_pm_sepa_debit)
 
         val stripe = Stripe(this,
-            PaymentConfiguration.getInstance(this).publishableKey)
+            PaymentConfiguration.getInstance(this).publishableKey,
+                "put_tenant_id_here")
 
         val progressBar: ProgressBar = findViewById(R.id.progress_bar)
         val ibanInput: EditText = findViewById(R.id.iban_input)

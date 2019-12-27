@@ -42,7 +42,6 @@ class PaymentAuthActivity : AppCompatActivity() {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_payment_auth)
 
-        val stripeAccountId = Settings(this).stripeAccountId
 
         val uiCustomization =
             PaymentAuthConfig.Stripe3ds2UiCustomization.Builder().build()
@@ -56,6 +55,8 @@ class PaymentAuthActivity : AppCompatActivity() {
         if (savedInstanceState != null) {
             tv_status.text = savedInstanceState.getString(STATE_STATUS)
         }
+
+        val stripeAccountId = "put_tenant_id_here"
 
         val publishableKey = PaymentConfiguration.getInstance(this).publishableKey
         stripe = Stripe(this, publishableKey,

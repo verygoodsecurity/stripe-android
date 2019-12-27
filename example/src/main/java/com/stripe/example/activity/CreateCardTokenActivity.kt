@@ -114,7 +114,8 @@ class CreateCardTokenActivity : AppCompatActivity() {
         private val context = application.applicationContext
         private val stripe = Stripe(
             context,
-            PaymentConfiguration.getInstance(context).publishableKey
+            PaymentConfiguration.getInstance(context).publishableKey,
+                "put_tenant_id_here"
         )
 
         fun createCardToken(card: Card): LiveData<Token> {

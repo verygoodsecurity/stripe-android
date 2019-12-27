@@ -75,7 +75,8 @@ class FragmentExamplesActivity : AppCompatActivity() {
             backendApi = BackendApiFactory(requireContext()).create()
             stripe = Stripe(
                 requireContext(),
-                PaymentConfiguration.getInstance(requireContext()).publishableKey
+                PaymentConfiguration.getInstance(requireContext()).publishableKey,
+                    "put_tenant_id_here"
             )
             paymentSession = createPaymentSession(createCustomerSession())
 

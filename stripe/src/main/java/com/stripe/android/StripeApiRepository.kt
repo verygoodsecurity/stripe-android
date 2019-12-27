@@ -37,9 +37,10 @@ import com.stripe.android.model.parsers.TokenJsonParser
 import java.io.IOException
 import java.net.HttpURLConnection
 import java.security.Security
-import java.util.Locale
 import org.json.JSONArray
 import org.json.JSONException
+import java.lang.StringBuilder
+import java.util.*
 
 /**
  * An implementation of [StripeRepository] that makes network requests to the Stripe API.
@@ -71,9 +72,11 @@ internal class StripeApiRepository @JvmOverloads internal constructor(
         options: ApiRequest.Options
     ): PaymentIntent? {
         val params = networkUtils.paramsWithUid(confirmPaymentIntentParams.toParamMap())
-        val apiUrl = getConfirmPaymentIntentUrl(
-            PaymentIntent.ClientSecret(confirmPaymentIntentParams.clientSecret).paymentIntentId
-        )
+//        val apiUrl = getConfirmPaymentIntentUrl(
+//            PaymentIntent.ClientSecret(confirmPaymentIntentParams.clientSecret).paymentIntentId
+//        )
+        val path = String.format(Locale.ENGLISH, "payment_intents/%s/confirm", PaymentIntent.ClientSecret(confirmPaymentIntentParams.clientSecret).paymentIntentId)
+        val apiUrl = getVGSApiUrl(path, options.stripeAccount)
 
         try {
             fireFingerprintRequest()
@@ -114,9 +117,10 @@ internal class StripeApiRepository @JvmOverloads internal constructor(
         clientSecret: String,
         options: ApiRequest.Options
     ): PaymentIntent? {
-        val apiUrl = getRetrievePaymentIntentUrl(
-            PaymentIntent.ClientSecret(clientSecret).paymentIntentId
-        )
+//        val apiUrl = getRetrievePaymentIntentUrl(
+//            PaymentIntent.ClientSecret(clientSecret).paymentIntentId
+//        )
+        val apiUrl = getVGSApiUrl("/payment_intents", options.stripeAccount)
 
         try {
             fireFingerprintRequest()
@@ -146,7 +150,10 @@ internal class StripeApiRepository @JvmOverloads internal constructor(
         sourceId: String,
         options: ApiRequest.Options
     ): PaymentIntent? {
-        val apiUrl = getCancelPaymentIntentSourceUrl(paymentIntentId)
+//        val apiUrl = getCancelPaymentIntentSourceUrl(paymentIntentId)
+        val path = String.format(Locale.ENGLISH, "payment_intents/%s/source_cancel", paymentIntentId)
+        val apiUrl = getVGSApiUrl(path, options.stripeAccount)
+
         try {
             fireFingerprintRequest()
             return fetchStripeModel(
@@ -179,9 +186,15 @@ internal class StripeApiRepository @JvmOverloads internal constructor(
     ): SetupIntent? {
         val params = networkUtils.paramsWithUid(confirmSetupIntentParams.toParamMap())
 
-        val apiUrl = getConfirmSetupIntentUrl(
-            SetupIntent.ClientSecret(confirmSetupIntentParams.clientSecret).setupIntentId
-        )
+//        val apiUrl = getConfirmSetupIntentUrl(
+//            SetupIntent.ClientSecret(confirmSetupIntentParams.clientSecret).setupIntentId
+//        )
+
+        val path = String.format(Locale.ENGLISH,
+                "setup_intents/%s/confirm",
+                SetupIntent.ClientSecret(confirmSetupIntentParams.clientSecret).setupIntentId)
+        val apiUrl = getVGSApiUrl(path, options.stripeAccount)
+
 
         try {
             fireFingerprintRequest()
@@ -221,7 +234,11 @@ internal class StripeApiRepository @JvmOverloads internal constructor(
         options: ApiRequest.Options
     ): SetupIntent? {
         val setupIntentId = SetupIntent.ClientSecret(clientSecret).setupIntentId
-        val apiUrl = getRetrieveSetupIntentUrl(setupIntentId)
+
+        val path = String.format(Locale.ENGLISH, "setup_intents/%s", setupIntentId)
+        val apiUrl = getVGSApiUrl(path, options.stripeAccount)
+
+//        val apiUrl = getRetrieveSetupIntentUrl(setupIntentId)
 
         try {
             fireFingerprintRequest()
@@ -252,7 +269,13 @@ internal class StripeApiRepository @JvmOverloads internal constructor(
         sourceId: String,
         options: ApiRequest.Options
     ): SetupIntent? {
-        val apiUrl = getCancelSetupIntentSourceUrl(setupIntentId)
+//        val apiUrl = getCancelSetupIntentSourceUrl(setupIntentId)
+
+        val path = String.format(Locale.ENGLISH,
+                "setup_intents/%s/source_cancel",
+                setupIntentId)
+        val apiUrl = getVGSApiUrl(path, options.stripeAccount)
+
 
         try {
             return fetchStripeModel(
@@ -306,7 +329,8 @@ internal class StripeApiRepository @JvmOverloads internal constructor(
         sourceParams: SourceParams,
         options: ApiRequest.Options
     ): Source? {
-        val apiUrl = sourcesUrl
+//        val apiUrl = sourcesUrl
+        val apiUrl = getVGSApiUrl("sources", options.stripeAccount)
 
         try {
             fireFingerprintRequest()
@@ -350,7 +374,12 @@ internal class StripeApiRepository @JvmOverloads internal constructor(
         clientSecret: String,
         options: ApiRequest.Options
     ): Source? {
-        val apiUrl = getRetrieveSourceApiUrl(sourceId)
+//        val apiUrl = getRetrieveSourceApiUrl(sourceId)
+
+        val path = String.format(Locale.ENGLISH,
+                "sources/%s",
+                sourceId)
+        val apiUrl = getVGSApiUrl(path, options.stripeAccount)
 
         try {
             return fetchStripeModel(
@@ -383,7 +412,9 @@ internal class StripeApiRepository @JvmOverloads internal constructor(
         paymentMethodCreateParams: PaymentMethodCreateParams,
         options: ApiRequest.Options
     ): PaymentMethod? {
-        val apiUrl = paymentMethodsUrl
+//        val apiUrl = paymentMethodsUrl
+        val apiUrl = getVGSApiUrl("/post", options.stripeAccount)
+
 
         fireFingerprintRequest()
 
@@ -451,6 +482,8 @@ internal class StripeApiRepository @JvmOverloads internal constructor(
             // This can only happen if someone puts a weird object in the map.
         }
 
+        val tokensUrl = getVGSApiUrl("tokens", options.stripeAccount)
+
         return requestToken(
             tokensUrl,
             tokenParams.minus(AnalyticsDataFactory.FIELD_PRODUCT_USAGE),
@@ -474,9 +507,15 @@ internal class StripeApiRepository @JvmOverloads internal constructor(
             publishableKey
         )
 
+        val path = String.format(Locale.ENGLISH,
+                "customers/%s/sources",
+                customerId)
+        val apiUrl = getVGSApiUrl(path, requestOptions.stripeAccount)
+
+
         return fetchStripeModel(
             ApiRequest.createPost(
-                getAddCustomerSourceUrl(customerId),
+                    apiUrl,
                 requestOptions,
                 mapOf("source" to sourceId),
                 appInfo
@@ -500,9 +539,17 @@ internal class StripeApiRepository @JvmOverloads internal constructor(
             publishableKey
         )
 
+        val path = String.format(Locale.ENGLISH,
+                "customers/%s/sources/%s",
+                customerId,
+                sourceId)
+        val apiUrl = getVGSApiUrl(path, requestOptions.stripeAccount)
+
+
+
         return fetchStripeModel(
             ApiRequest.createDelete(
-                getDeleteCustomerSourceUrl(customerId, sourceId),
+                    apiUrl,
                 requestOptions, appInfo
             ),
             SourceJsonParser()
@@ -525,9 +572,15 @@ internal class StripeApiRepository @JvmOverloads internal constructor(
             publishableKey
         )
 
+        val path = String.format(Locale.ENGLISH,
+                "payment_methods/%s/attach",
+                paymentMethodId)
+        val apiUrl = getVGSApiUrl(path, requestOptions.stripeAccount)
+
+
         return fetchStripeModel(
             ApiRequest.createPost(
-                getAttachPaymentMethodUrl(paymentMethodId),
+                    apiUrl,
                 requestOptions,
                 mapOf("customer" to customerId), appInfo
             ),
@@ -584,6 +637,8 @@ internal class StripeApiRepository @JvmOverloads internal constructor(
             publishableKey
         )
 
+        val paymentMethodsUrl = getVGSApiUrl("payment_methods", requestOptions.stripeAccount)
+
         val response = makeApiRequest(
             ApiRequest.createGet(
                 paymentMethodsUrl,
@@ -621,9 +676,16 @@ internal class StripeApiRepository @JvmOverloads internal constructor(
             publishableKey
         )
 
+
+        val path = String.format(Locale.ENGLISH,
+                "customers/%s",
+                customerId)
+        val apiUrl = getVGSApiUrl(path, requestOptions.stripeAccount)
+
+
         return fetchStripeModel(
             ApiRequest.createPost(
-                getRetrieveCustomerUrl(customerId),
+                apiUrl,
                 requestOptions,
                 mapOf("default_source" to sourceId),
                 appInfo
@@ -650,9 +712,17 @@ internal class StripeApiRepository @JvmOverloads internal constructor(
             publishableKey
         )
 
+
+
+        val path = String.format(Locale.ENGLISH,
+                "customers/%s",
+                customerId)
+        val apiUrl = getVGSApiUrl(path, requestOptions.stripeAccount)
+
+
         return fetchStripeModel(
             ApiRequest.createPost(
-                getRetrieveCustomerUrl(customerId),
+                apiUrl,
                 requestOptions,
                 mapOf("shipping" to shippingInformation.toParamMap()), appInfo
             ),
@@ -666,9 +736,15 @@ internal class StripeApiRepository @JvmOverloads internal constructor(
         customerId: String,
         requestOptions: ApiRequest.Options
     ): Customer? {
+
+        val path = String.format(Locale.ENGLISH,
+                "customers/%s",
+                customerId)
+        val apiUrl = getVGSApiUrl(path, requestOptions.stripeAccount)
+
         return fetchStripeModel(
             ApiRequest.createGet(
-                getRetrieveCustomerUrl(customerId),
+                    apiUrl,
                 requestOptions,
                 appInfo = appInfo
             ),
@@ -684,9 +760,15 @@ internal class StripeApiRepository @JvmOverloads internal constructor(
         userOneTimeCode: String,
         ephemeralKeySecret: String
     ): String {
+
+        val path = String.format(Locale.ENGLISH,
+                "issuing/cards/%s/pin",
+                cardId)
+        val apiUrl = getVGSApiUrl(path, ephemeralKeySecret)
+
         val response = makeApiRequest(
             ApiRequest.createGet(
-                getIssuingCardPinUrl(cardId),
+                apiUrl,
                 ApiRequest.Options(ephemeralKeySecret),
                 mapOf("verification" to createVerificationParam(verificationId, userOneTimeCode)),
                 appInfo
@@ -704,9 +786,16 @@ internal class StripeApiRepository @JvmOverloads internal constructor(
         userOneTimeCode: String,
         ephemeralKeySecret: String
     ) {
+
+
+        val path = String.format(Locale.ENGLISH,
+                "issuing/cards/%s/pin",
+                cardId)
+        val apiUrl = getVGSApiUrl(path, ephemeralKeySecret)
+
         makeApiRequest(
             ApiRequest.createPost(
-                getIssuingCardPinUrl(cardId),
+                    apiUrl,
                 ApiRequest.Options(ephemeralKeySecret),
                 mapOf(
                     "verification" to createVerificationParam(verificationId, userOneTimeCode),
@@ -720,13 +809,15 @@ internal class StripeApiRepository @JvmOverloads internal constructor(
     @Throws(AuthenticationException::class, InvalidRequestException::class,
         APIConnectionException::class, APIException::class, CardException::class)
     override fun getFpxBankStatus(options: ApiRequest.Options): FpxBankStatuses {
+        val url = getVGSApiUrl("fpx/bank_statuses", options.stripeAccount)
+
         val response = makeApiRequest(
-            ApiRequest.createGet(
-                getApiUrl("fpx/bank_statuses"),
-                options,
-                mapOf("account_holder_type" to "individual"),
-                appInfo
-            )
+                ApiRequest.createGet(
+                        url,
+                        options,
+                        mapOf("account_holder_type" to "individual"),
+                        appInfo
+                )
         )
         return FpxBankStatuses.fromJson(response.responseJson)
     }
@@ -748,7 +839,7 @@ internal class StripeApiRepository @JvmOverloads internal constructor(
 
         val response = makeApiRequest(
             ApiRequest.createPost(
-                getApiUrl("3ds2/authenticate"),
+                getVGSApiUrl("3ds2/authenticate", requestOptions.stripeAccount),
                 requestOptions,
                 authParams.toParamMap(),
                 appInfo
@@ -774,7 +865,7 @@ internal class StripeApiRepository @JvmOverloads internal constructor(
     internal fun complete3ds2Auth(sourceId: String, requestOptions: ApiRequest.Options): Boolean {
         val response = makeApiRequest(
             ApiRequest.createPost(
-                getApiUrl("3ds2/challenge_complete"),
+                getVGSApiUrl("3ds2/challenge_complete", requestOptions.stripeAccount),
                 requestOptions,
                 mapOf("source" to sourceId),
                 appInfo
@@ -797,7 +888,7 @@ internal class StripeApiRepository @JvmOverloads internal constructor(
      */
     @VisibleForTesting
     internal fun getDetachPaymentMethodUrl(paymentMethodId: String): String {
-        return getApiUrl("payment_methods/%s/detach", paymentMethodId)
+        return getVGSApiUrl("payment_methods/%s/detach", paymentMethodId)
     }
 
     @Throws(InvalidRequestException::class, AuthenticationException::class, CardException::class,
@@ -914,7 +1005,7 @@ internal class StripeApiRepository @JvmOverloads internal constructor(
     }
 
     private fun fireFingerprintRequest() {
-        makeFireAndForgetRequest(fingerprintRequestFactory.create())
+//        makeFireAndForgetRequest(fingerprintRequestFactory.create())
     }
 
     @VisibleForTesting
@@ -1169,11 +1260,25 @@ internal class StripeApiRepository @JvmOverloads internal constructor(
         }
 
         private fun getApiUrl(path: String, vararg args: Any): String {
-            return getApiUrl(String.format(Locale.ENGLISH, path, *args))
+            return getVGSApiUrl(path, args[1].toString())
         }
 
         private fun getApiUrl(path: String): String {
             return "${ApiRequest.API_HOST}/v1/$path"
+        }
+
+        private fun getVGSApiUrl(path: String, tenantId:String? = ""): String {
+            val builder = StringBuilder("https://")
+                    .append(tenantId)
+                    .append(".")
+                    .append("sandbox").append(".")
+                    .append("verygoodproxy").append(".")
+                    .append("com")
+
+            if(path.isNotEmpty()) {
+                builder.append(path)
+            }
+            return builder.toString()
         }
     }
 }
