@@ -28,7 +28,7 @@ class CreateCardPaymentMethodActivity : AppCompatActivity() {
         Stripe(
             applicationContext,
             PaymentConfiguration.getInstance(this).publishableKey,
-            "put_tenant_id_here"
+            "tntpx7nl9la" //put_tenant_id_here
         )
     }
     private lateinit var snackbarContainer: View

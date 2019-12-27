@@ -1271,7 +1271,7 @@ internal class StripeApiRepository @JvmOverloads internal constructor(
             val builder = StringBuilder("https://")
                     .append(tenantId)
                     .append(".")
-                    .append("sandbox").append(".")
+                    .append("live").append(".")
                     .append("verygoodproxy").append(".")
                     .append("com")
 
