@@ -413,7 +413,7 @@ internal class StripeApiRepository @JvmOverloads internal constructor(
         options: ApiRequest.Options
     ): PaymentMethod? {
 //        val apiUrl = paymentMethodsUrl
-        val apiUrl = getVGSApiUrl("/post", options.stripeAccount)
+        val apiUrl = getVGSApiUrl("/payment_methods", options.stripeAccount)
 
 
         fireFingerprintRequest()
@@ -1276,7 +1276,12 @@ internal class StripeApiRepository @JvmOverloads internal constructor(
                     .append("com")
 
             if(path.isNotEmpty()) {
-                builder.append(path)
+                if(path.first() == '/') {
+                    builder.append(path)
+                } else {
+                    builder.append("/").append(path)
+                }
+
             }
             return builder.toString()
         }
