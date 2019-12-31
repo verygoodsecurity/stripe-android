@@ -9,6 +9,7 @@ import androidx.appcompat.app.AppCompatActivity
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import com.google.android.material.snackbar.Snackbar
+import com.stripe.android.Environment
 import com.stripe.android.PaymentConfiguration
 import com.stripe.android.Stripe
 import com.stripe.android.model.Address
@@ -28,7 +29,8 @@ class CreateCardPaymentMethodActivity : AppCompatActivity() {
         Stripe(
             applicationContext,
             PaymentConfiguration.getInstance(this).publishableKey,
-            "tntpx7nl9la" //put_tenant_id_here
+            environment = Environment.SANDBOX,
+            tenId = "tntxrsfgxcn" //put_tenant_id_here
         )
     }
     private lateinit var snackbarContainer: View

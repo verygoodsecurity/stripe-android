@@ -101,7 +101,9 @@ internal class ApiRequest internal constructor(
     internal data class Options internal constructor(
         val apiKey: String,
         internal val stripeAccount: String? = null,
-        internal val idempotencyKey: String? = null
+        internal val idempotencyKey: String? = null,
+        internal val tennantId: String? = null,
+        internal val environment: Environment = Environment.SANDBOX
     ) : Parcelable {
         init {
             ApiKeyValidator().requireValid(apiKey)

@@ -49,7 +49,9 @@ class Stripe internal constructor(
     private val paymentController: PaymentController,
     publishableKey: String,
     private val stripeAccountId: String? = null,
-    private val workScope: CoroutineScope = CoroutineScope(Dispatchers.IO)
+    private val workScope: CoroutineScope = CoroutineScope(Dispatchers.IO),
+    private val environment: Environment,
+    private val tenId:String?
 ) {
     private val publishableKey: String = ApiKeyValidator().requireValid(publishableKey)
 
@@ -65,10 +67,12 @@ class Stripe internal constructor(
      */
     @JvmOverloads
     constructor(
-        context: Context,
-        publishableKey: String,
-        stripeAccountId: String? = null,
-        enableLogging: Boolean = false
+            context: Context,
+            publishableKey: String,
+            stripeAccountId: String? = null,
+            enableLogging: Boolean = false,
+            environment: Environment = Environment.SANDBOX,
+            tenId:String = ""
     ) : this(
         context.applicationContext,
         StripeApiRepository(
@@ -79,7 +83,9 @@ class Stripe internal constructor(
         StripeNetworkUtils(context.applicationContext),
         ApiKeyValidator.get().requireValid(publishableKey),
         stripeAccountId,
-        enableLogging
+        enableLogging,
+        environment,
+        tenId
     )
 
     private constructor(
@@ -88,7 +94,9 @@ class Stripe internal constructor(
         stripeNetworkUtils: StripeNetworkUtils,
         publishableKey: String,
         stripeAccountId: String?,
-        enableLogging: Boolean
+        enableLogging: Boolean,
+        environment: Environment,
+        tenId:String?
     ) : this(
         stripeRepository,
         stripeNetworkUtils,
@@ -98,7 +106,9 @@ class Stripe internal constructor(
             enableLogging
         ),
         publishableKey,
-        stripeAccountId
+        stripeAccountId,
+        environment,
+        tenId
     )
 
     internal constructor(
@@ -106,14 +116,18 @@ class Stripe internal constructor(
         stripeNetworkUtils: StripeNetworkUtils,
         paymentController: PaymentController,
         publishableKey: String,
-        stripeAccountId: String?
+        stripeAccountId: String?,
+        environment: Environment,
+        tenId:String?
     ) : this(
         stripeRepository,
         stripeNetworkUtils,
         paymentController,
         publishableKey,
         stripeAccountId,
-        CoroutineScope(Dispatchers.IO)
+        CoroutineScope(Dispatchers.IO),
+        environment,
+        tenId
     )
 
     //
@@ -138,7 +152,9 @@ class Stripe internal constructor(
             confirmPaymentIntentParams,
             ApiRequest.Options(
                 apiKey = publishableKey,
-                stripeAccount = stripeAccountId
+                stripeAccount = stripeAccountId,
+                environment = environment,
+                tennantId = tenId
             )
         )
     }
@@ -160,7 +176,9 @@ class Stripe internal constructor(
             confirmPaymentIntentParams,
             ApiRequest.Options(
                 apiKey = publishableKey,
-                stripeAccount = stripeAccountId
+                stripeAccount = stripeAccountId,
+                environment = environment,
+                tennantId = tenId
             )
         )
     }
@@ -182,7 +200,9 @@ class Stripe internal constructor(
             PaymentIntent.ClientSecret(clientSecret).value,
             ApiRequest.Options(
                 apiKey = publishableKey,
-                stripeAccount = stripeAccountId
+                stripeAccount = stripeAccountId,
+                environment = environment,
+                tennantId = tenId
             )
         )
     }
@@ -204,7 +224,9 @@ class Stripe internal constructor(
             PaymentIntent.ClientSecret(clientSecret).value,
             ApiRequest.Options(
                 apiKey = publishableKey,
-                stripeAccount = stripeAccountId
+                stripeAccount = stripeAccountId,
+                environment = environment,
+                tennantId = tenId
             )
         )
     }
@@ -226,7 +248,9 @@ class Stripe internal constructor(
             PaymentIntent.ClientSecret(clientSecret).value,
             ApiRequest.Options(
                 apiKey = publishableKey,
-                stripeAccount = stripeAccountId
+                stripeAccount = stripeAccountId,
+                environment = environment,
+                tennantId = tenId
             )
         )
     }
@@ -248,7 +272,9 @@ class Stripe internal constructor(
             PaymentIntent.ClientSecret(clientSecret).value,
             ApiRequest.Options(
                 apiKey = publishableKey,
-                stripeAccount = stripeAccountId
+                stripeAccount = stripeAccountId,
+                environment = environment,
+                tennantId = tenId
             )
         )
     }
@@ -269,7 +295,9 @@ class Stripe internal constructor(
                 data,
                 ApiRequest.Options(
                     apiKey = publishableKey,
-                    stripeAccount = stripeAccountId
+                    stripeAccount = stripeAccountId,
+                    environment = environment,
+                    tennantId = tenId
                 ),
                 callback
             )
@@ -297,7 +325,9 @@ class Stripe internal constructor(
             PaymentIntent.ClientSecret(clientSecret).value,
             ApiRequest.Options(
                 apiKey = publishableKey,
-                stripeAccount = stripeAccountId
+                stripeAccount = stripeAccountId,
+                environment = environment,
+                tennantId = tenId
             )
         )
     }
@@ -328,7 +358,9 @@ class Stripe internal constructor(
             ApiRequest.Options(
                 apiKey = publishableKey,
                 stripeAccount = stripeAccountId,
-                idempotencyKey = idempotencyKey
+                idempotencyKey = idempotencyKey,
+                environment = environment,
+                tennantId = tenId
             )
         )
     }
@@ -352,7 +384,9 @@ class Stripe internal constructor(
             confirmSetupIntentParams,
             ApiRequest.Options(
                 apiKey = publishableKey,
-                stripeAccount = stripeAccountId
+                stripeAccount = stripeAccountId,
+                environment = environment,
+                tennantId = tenId
             )
         )
     }
@@ -372,7 +406,9 @@ class Stripe internal constructor(
             confirmSetupIntentParams,
             ApiRequest.Options(
                 apiKey = publishableKey,
-                stripeAccount = stripeAccountId
+                stripeAccount = stripeAccountId,
+                environment = environment,
+                tennantId = tenId
             )
         )
     }
@@ -393,7 +429,9 @@ class Stripe internal constructor(
             SetupIntent.ClientSecret(clientSecret).value,
             ApiRequest.Options(
                 apiKey = publishableKey,
-                stripeAccount = stripeAccountId
+                stripeAccount = stripeAccountId,
+                environment = environment,
+                tennantId = tenId
             )
         )
     }
@@ -413,7 +451,9 @@ class Stripe internal constructor(
             SetupIntent.ClientSecret(clientSecret).value,
             ApiRequest.Options(
                 apiKey = publishableKey,
-                stripeAccount = stripeAccountId
+                stripeAccount = stripeAccountId,
+                environment = environment,
+                tennantId = tenId
             )
         )
     }
@@ -434,7 +474,9 @@ class Stripe internal constructor(
             SetupIntent.ClientSecret(clientSecret).value,
             ApiRequest.Options(
                 apiKey = publishableKey,
-                stripeAccount = stripeAccountId
+                stripeAccount = stripeAccountId,
+                environment = environment,
+                tennantId = tenId
             )
         )
     }
@@ -454,7 +496,9 @@ class Stripe internal constructor(
             SetupIntent.ClientSecret(clientSecret).value,
             ApiRequest.Options(
                 apiKey = publishableKey,
-                stripeAccount = stripeAccountId
+                stripeAccount = stripeAccountId,
+                environment = environment,
+                tennantId = tenId
             )
         )
     }
@@ -474,7 +518,9 @@ class Stripe internal constructor(
                 data,
                 ApiRequest.Options(
                     apiKey = publishableKey,
-                    stripeAccount = stripeAccountId
+                    stripeAccount = stripeAccountId,
+                    environment = environment,
+                    tennantId = tenId
                 ),
                 callback
             )
@@ -502,7 +548,9 @@ class Stripe internal constructor(
             SetupIntent.ClientSecret(clientSecret).value,
             ApiRequest.Options(
                 apiKey = publishableKey,
-                stripeAccount = stripeAccountId
+                stripeAccount = stripeAccountId,
+                environment = environment,
+                tennantId = tenId
             )
         )
     }
@@ -533,7 +581,9 @@ class Stripe internal constructor(
             ApiRequest.Options(
                 apiKey = publishableKey,
                 stripeAccount = stripeAccountId,
-                idempotencyKey = idempotencyKey
+                idempotencyKey = idempotencyKey,
+                environment = environment,
+                tennantId = tenId
             )
         )
     }
@@ -565,7 +615,9 @@ class Stripe internal constructor(
             ApiRequest.Options(
                 apiKey = publishableKey,
                 stripeAccount = stripeAccountId,
-                idempotencyKey = idempotencyKey
+                idempotencyKey = idempotencyKey,
+                environment = environment,
+                tennantId = tenId
             ),
             workScope,
             callback
@@ -597,7 +649,9 @@ class Stripe internal constructor(
             ApiRequest.Options(
                 apiKey = publishableKey,
                 stripeAccount = stripeAccountId,
-                idempotencyKey = idempotencyKey
+                idempotencyKey = idempotencyKey,
+                environment = environment,
+                tennantId = tenId
             )
         )
     }
@@ -622,7 +676,10 @@ class Stripe internal constructor(
         paymentController.startAuthenticateSource(
             AuthActivityStarter.Host.create(activity),
             source,
-            ApiRequest.Options(publishableKey, stripeAccountId)
+            ApiRequest.Options(publishableKey,
+                    stripeAccountId,
+                    environment = environment,
+                    tennantId = tenId)
         )
     }
 
@@ -642,7 +699,10 @@ class Stripe internal constructor(
         paymentController.startAuthenticateSource(
             AuthActivityStarter.Host.create(fragment),
             source,
-            ApiRequest.Options(publishableKey, stripeAccountId)
+            ApiRequest.Options(publishableKey,
+                    stripeAccountId,
+                    environment = environment,
+                    tennantId = tenId)
         )
     }
 
@@ -667,7 +727,9 @@ class Stripe internal constructor(
     ) {
         paymentController.handleSourceResult(
             data,
-            ApiRequest.Options(publishableKey, stripeAccountId),
+            ApiRequest.Options(publishableKey, stripeAccountId,
+                    environment = environment,
+                    tennantId = tenId),
             callback
         )
     }
@@ -695,7 +757,9 @@ class Stripe internal constructor(
             ApiRequest.Options(
                 apiKey = publishableKey,
                 stripeAccount = stripeAccountId,
-                idempotencyKey = idempotencyKey
+                idempotencyKey = idempotencyKey,
+                environment = environment,
+                tennantId = tenId
             ),
             workScope,
             callback
@@ -733,7 +797,9 @@ class Stripe internal constructor(
             ApiRequest.Options(
                 apiKey = publishableKey,
                 stripeAccount = stripeAccountId,
-                idempotencyKey = idempotencyKey
+                idempotencyKey = idempotencyKey,
+                environment = environment,
+                tennantId = tenId
             )
         )
     }
@@ -763,7 +829,9 @@ class Stripe internal constructor(
             stripeRepository, sourceId, clientSecret,
             ApiRequest.Options(
                 apiKey = publishableKey,
-                stripeAccount = stripeAccountId
+                stripeAccount = stripeAccountId,
+                environment = environment,
+                tennantId = tenId
             ),
             workScope,
             callback
@@ -798,7 +866,9 @@ class Stripe internal constructor(
             clientSecret,
             ApiRequest.Options(
                 apiKey = publishableKey,
-                stripeAccount = stripeAccountId
+                stripeAccount = stripeAccountId,
+                environment = environment,
+                tennantId = tenId
             )
         )
     }
@@ -866,7 +936,9 @@ class Stripe internal constructor(
                 ApiRequest.Options(
                     apiKey = publishableKey,
                     stripeAccount = stripeAccountId,
-                    idempotencyKey = idempotencyKey
+                    idempotencyKey = idempotencyKey,
+                    environment = environment,
+                    tennantId = tenId
                 ),
                 Token.TokenType.ACCOUNT
             )
@@ -938,7 +1010,9 @@ class Stripe internal constructor(
             ApiRequest.Options(
                 apiKey = publishableKey,
                 stripeAccount = stripeAccountId,
-                idempotencyKey = idempotencyKey
+                idempotencyKey = idempotencyKey,
+                environment = environment,
+                tennantId = tenId
             ),
             Token.TokenType.BANK_ACCOUNT
         )
@@ -1000,7 +1074,9 @@ class Stripe internal constructor(
             ApiRequest.Options(
                 apiKey = publishableKey,
                 stripeAccount = stripeAccountId,
-                idempotencyKey = idempotencyKey
+                idempotencyKey = idempotencyKey,
+                environment = environment,
+                tennantId = tenId
             ),
             Token.TokenType.PII
         )
@@ -1089,7 +1165,9 @@ class Stripe internal constructor(
             ApiRequest.Options(
                 apiKey = publishableKey,
                 stripeAccount = stripeAccountId,
-                idempotencyKey = idempotencyKey
+                idempotencyKey = idempotencyKey,
+                environment = environment,
+                tennantId = tenId
             ),
             Token.TokenType.CARD
         )
@@ -1149,7 +1227,9 @@ class Stripe internal constructor(
             ApiRequest.Options(
                 apiKey = publishableKey,
                 stripeAccount = stripeAccountId,
-                idempotencyKey = idempotencyKey
+                idempotencyKey = idempotencyKey,
+                environment = environment,
+                tennantId = tenId
             ),
             Token.TokenType.CVC_UPDATE
         )
@@ -1168,7 +1248,9 @@ class Stripe internal constructor(
             ApiRequest.Options(
                 apiKey = publishableKey,
                 stripeAccount = stripeAccountId,
-                idempotencyKey = idempotencyKey
+                idempotencyKey = idempotencyKey,
+                environment = environment,
+                tennantId = tenId
             ),
             workScope,
             callback
